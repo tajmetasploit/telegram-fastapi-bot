@@ -7,7 +7,6 @@ app = FastAPI()
 async def root():
     return {"message": "Hello from FastAPI!"}
 """
-
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
 from app.database import get_db, Base, engine
@@ -40,3 +39,4 @@ def create_message(content: str, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_message)
     return {"id": new_message.id, "content": new_message.text}
+
