@@ -73,8 +73,11 @@ from app.database import get_db, Base, engine
 from app.models import Message
 from app.bot import start_bot
 import asyncio
-
+import os
 app = FastAPI(title="Проект Telegram + FastAPI")
+
+print("DATABASE_URL is:", os.getenv("DATABASE_URL"))
+
 
 # 📦 Создание таблиц при запуске
 Base.metadata.create_all(bind=engine)
