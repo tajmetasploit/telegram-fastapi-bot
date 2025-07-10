@@ -78,7 +78,7 @@ def get_db():
 
 """
 
-from sqlalchemy import create_engine
+"""from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 import os
 
@@ -93,6 +93,29 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 # ✅ Dependency for DB session
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+"""
+
+import os
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, declarative_base
+
+DATABASE_URL = os.getenv(
+    "DATABASE_URL",
+    "postgresql://Uzer:0000@localhost:5432/mybotdatabase"  # your local fallback
+)
+
+engine = create_engine(DATABASE_URL)
+
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+Base = declarative_base()
+
 def get_db():
     db = SessionLocal()
     try:
