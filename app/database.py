@@ -28,35 +28,33 @@ def get_db():
         db.close()
 
 """
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 from fastapi import Depends
 from dotenv import load_dotenv
-import os
 
-# Load environment variables from .env file (optional, mainly for local development)
-load_dotenv()
+# Only load .env if not in Railway environment
+if os.getenv("RAILWAY_ENVIRONMENT") is None:
+    load_dotenv()
 
-# Get the DATABASE_URL from environment variables
-# Railway provides this automatically in production
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql://postgres:postgres@localhost:5432/mybotdatabase"  # local fallback
-)
+# Get the DATABASE_URL from environment
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-print("DATABASE_URL:", os.getenv("DATABASE_URL"))
+# Raise clear error if missing
+if not DATABASE_URL:
+    raise ValueError("DATABASE_URL environment variable is not set")
 
-
-# Create the SQLAlchemy engine
+# Create SQLAlchemy engine
 engine = create_engine(DATABASE_URL, echo=False, future=True)
 
-# Create a configured "SessionLocal" class
+# Create session factory
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Base class for your SQLAlchemy models
+# Declare base class for models
 Base = declarative_base()
 
-# Dependency to get DB session for FastAPI routes
+# Dependency to get a DB session
 def get_db():
     db = SessionLocal()
     try:
