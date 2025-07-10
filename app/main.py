@@ -219,3 +219,16 @@ app = FastAPI()
 async def on_startup():
     asyncio.create_task(start_bot())  # Start Telegram bot as background task
 
+
+from app.bot import bot, dp, register_handlers
+import asyncio
+
+async def main():
+    register_handlers(dp)
+    print("Bot started...")
+    await dp.start_polling(bot)
+
+if __name__ == "__main__":
+    asyncio.run(main())
+
+

@@ -1,3 +1,4 @@
+
 import asyncio
 from app.bot import dp, bot
 
@@ -7,3 +8,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
