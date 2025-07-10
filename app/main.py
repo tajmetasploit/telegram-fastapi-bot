@@ -211,3 +211,11 @@ def delete_message(message_id: int, db: Session = Depends(get_db)):
 async def on_startup():
     # Запускаем бота в отдельной задаче
     asyncio.create_task(start_bot())
+
+
+app = FastAPI()
+
+@app.on_event("startup")
+async def on_startup():
+    asyncio.create_task(start_bot())  # Start Telegram bot as background task
+
