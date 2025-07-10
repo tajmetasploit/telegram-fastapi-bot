@@ -44,6 +44,9 @@ DATABASE_URL = os.getenv(
     "postgresql://postgres:postgres@localhost:5432/mybotdatabase"  # local fallback
 )
 
+print("DATABASE_URL:", os.getenv("DATABASE_URL"))
+
+
 # Create the SQLAlchemy engine
 engine = create_engine(DATABASE_URL, echo=False, future=True)
 
