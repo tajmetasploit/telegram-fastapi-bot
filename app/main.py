@@ -235,81 +235,71 @@ async def on_startup():
     asyncio.create_task(dp.start_polling(bot))"""
 
 
-import asyncio
-import os
+# app/main.py
 from fastapi import FastAPI, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from app.database import get_db, Base, engine
 from app.models import Message
-from app.bot import dp, bot, register_handlers  # bot logic here
+import asyncio
+import os
 
-app = FastAPI(title="Проект Telegram + FastAPI")
+app = FastAPI(title="Telegram + FastAPI Project")
 
-# ✅ Print DB URL for debugging
-print("DATABASE_URL is:", os.getenv("DATABASE_URL"))
-
-# ✅ Create tables
+# Create tables on startup
 Base.metadata.create_all(bind=engine)
 
-# 🟢 Root endpoint
+# Root endpoint
 @app.get("/")
 async def root():
-    return {"message": "👋 Привет! FastAPI работает."}
+    return {"message": "👋 Hello! FastAPI is running."}
 
-# 🟢 Get all messages
-@app.get("/messages", summary="Получить список всех сообщений")
+# Get all messages
+@app.get("/messages", summary="Get all messages")
 def get_messages(db: Session = Depends(get_db)):
     messages = db.query(Message).all()
-    return [{"id": m.id, "текст": m.text} for m in messages]
+    return [{"id": m.id, "text": m.text} for m in messages]
 
-# 🟢 Get message by ID
-@app.get("/messages/{message_id}", summary="Получить сообщение по ID")
+# Get a message by ID
+@app.get("/messages/{message_id}", summary="Get message by ID")
 def get_message(message_id: int, db: Session = Depends(get_db)):
     message = db.query(Message).filter(Message.id == message_id).first()
     if not message:
-        raise HTTPException(status_code=404, detail="❌ Сообщение не найдено.")
-    return {"id": message.id, "текст": message.text}
+        raise HTTPException(status_code=404, detail="❌ Message not found.")
+    return {"id": message.id, "text": message.text}
 
-# ➕ Create message
-@app.post("/messages", summary="Создать новое сообщение")
-def create_message(content: str = Query(..., description="Текст нового сообщения"), db: Session = Depends(get_db)):
+# Create a message
+@app.post("/messages", summary="Create new message")
+def create_message(content: str = Query(...), db: Session = Depends(get_db)):
     new_message = Message(text=content)
     db.add(new_message)
     db.commit()
     db.refresh(new_message)
-    return {"id": new_message.id, "текст": new_message.text}
+    return {"id": new_message.id, "text": new_message.text}
 
-# ✏️ Update message
-@app.put("/messages/{message_id}", summary="Обновить существующее сообщение")
-def update_message(
-    message_id: int,
-    new_content: str = Query(..., description="Новый текст сообщения"),
-    db: Session = Depends(get_db)
-):
+# Update a message
+@app.put("/messages/{message_id}", summary="Update a message")
+def update_message(message_id: int, new_content: str = Query(...), db: Session = Depends(get_db)):
     message = db.query(Message).filter(Message.id == message_id).first()
     if not message:
-        raise HTTPException(status_code=404, detail="❌ Сообщение не найдено.")
+        raise HTTPException(status_code=404, detail="❌ Message not found.")
     message.text = new_content
     db.commit()
     db.refresh(message)
-    return {"id": message.id, "текст": message.text}
+    return {"id": message.id, "text": message.text}
 
-# ❌ Delete message
-@app.delete("/messages/{message_id}", summary="Удалить сообщение по ID")
+# Delete a message
+@app.delete("/messages/{message_id}", summary="Delete a message")
 def delete_message(message_id: int, db: Session = Depends(get_db)):
     message = db.query(Message).filter(Message.id == message_id).first()
     if not message:
-        raise HTTPException(status_code=404, detail="❌ Сообщение не найдено.")
+        raise HTTPException(status_code=404, detail="❌ Message not found.")
     db.delete(message)
     db.commit()
-    return {"detail": f"✅ Сообщение с ID {message_id} успешно удалено."}
+    return {"detail": f"✅ Message with ID {message_id} deleted."}
 
-# ✅ Run Telegram Bot only once when FastAPI starts
-@app.on_event("startup")
-async def on_startup():
-    print("🚀 FastAPI and Telegram bot are starting...")
-    register_handlers(dp)
-    asyncio.create_task(dp.start_polling(bot))
+# Optional: start Telegram bot in background (not recommended with polling)
+# Instead, use a separate `run_bot.py` for polling
+
 
 
 

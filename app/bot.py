@@ -213,21 +213,19 @@ from dotenv import load_dotenv
 from app.database import SessionLocal
 from app import crud
 
-# 📥 Загрузка API токена из .env файла
 load_dotenv()
-API_TOKEN = os.getenv("API_TOKEN")  # Должен быть указан в .env
+API_TOKEN = os.getenv("API_TOKEN")
+if not API_TOKEN:
+    raise RuntimeError("API_TOKEN environment variable is missing!")
 
-# 🛠 Настройка логирования
 logging.basicConfig(level=logging.INFO)
 
-# 🤖 Бот и диспетчер
 bot = Bot(
     token=API_TOKEN,
     default=DefaultBotProperties(parse_mode=ParseMode.HTML)
 )
 dp = Dispatcher(storage=MemoryStorage())
 
-# 📱 Клавиатура меню
 menu_keyboard = ReplyKeyboardMarkup(
     keyboard=[
         [KeyboardButton(text="Старт"), KeyboardButton(text="Добавить"), KeyboardButton(text="Обновить")],
@@ -236,7 +234,6 @@ menu_keyboard = ReplyKeyboardMarkup(
     resize_keyboard=True
 )
 
-# 🧠 Состояния FSM
 class Form(StatesGroup):
     inserting = State()
     updating_id = State()
@@ -245,7 +242,6 @@ class Form(StatesGroup):
     searching = State()
     listing = State()
 
-# 🔌 Генератор сессии БД
 def get_db():
     db = SessionLocal()
     try:
@@ -253,14 +249,12 @@ def get_db():
     finally:
         db.close()
 
-# 📦 Регистрация обработчиков FSM
 def register_handlers(dp: Dispatcher):
     @dp.message(CommandStart())
     async def on_start(message: Message, state: FSMContext):
         await state.clear()
         await message.answer("👋 Добро пожаловать! Выберите действие ниже:", reply_markup=menu_keyboard)
 
-    # 🆕 Добавление
     @dp.message(F.text.lower() == "добавить")
     async def start_insert(message: Message, state: FSMContext):
         await state.set_state(Form.inserting)
@@ -276,7 +270,6 @@ def register_handlers(dp: Dispatcher):
             await message.answer(f"✅ Сообщение сохранено с ID: {new_msg.id}")
         await state.clear()
 
-    # 🔄 Обновление
     @dp.message(F.text.lower() == "обновить")
     async def start_update(message: Message, state: FSMContext):
         await state.set_state(Form.updating_id)
@@ -303,7 +296,6 @@ def register_handlers(dp: Dispatcher):
             await message.answer("❌ Сообщение не найдено.")
         await state.clear()
 
-    # 🗑 Удаление
     @dp.message(F.text.lower() == "удалить")
     async def start_delete(message: Message, state: FSMContext):
         await state.set_state(Form.deleting)
@@ -322,7 +314,6 @@ def register_handlers(dp: Dispatcher):
             await message.answer("❌ Сообщение не найдено.")
         await state.clear()
 
-    # 🔍 Поиск
     @dp.message(F.text.lower() == "поиск")
     async def start_search(message: Message, state: FSMContext):
         await state.set_state(Form.searching)
@@ -339,7 +330,6 @@ def register_handlers(dp: Dispatcher):
             await message.answer(response)
         await state.clear()
 
-    # 📜 Показать всё
     @dp.message(F.text.lower() == "показать всё")
     async def list_all_messages(message: Message, state: FSMContext):
         db = next(get_db())
@@ -348,7 +338,7 @@ def register_handlers(dp: Dispatcher):
            await message.answer("📭 Пока нет сохранённых сообщений.")
            return
 
-        MAX_LEN = 4000  # Ограничение Telegram по длине сообщений
+        MAX_LEN = 4000  # Telegram message length limit
         lines = [f"{m.id}: {m.text}" for m in all_msgs]
         current = ""
         for line in lines:
@@ -359,7 +349,6 @@ def register_handlers(dp: Dispatcher):
         if current:
             await message.answer(f"📝 Все сообщения:\n{current}")
 
-    # ❓ Обработка неизвестных текстов
     @dp.message()
     async def fallback_save(message: Message, state: FSMContext):
         text = message.text.strip()
@@ -377,15 +366,13 @@ def register_handlers(dp: Dispatcher):
             new_msg = crud.create_message(db, text)
             await message.answer(f"✅ Сообщение сохранено с ID: {new_msg.id}")
 
-# 🚀 Точка входа
 async def start_bot():
-    logging.info("🤖 Бот запускается...")
+    logging.info("🤖 Bot is starting...")
     register_handlers(dp)
     await dp.start_polling(bot)
 
-# Запуск бота
 if __name__ == "__main__":
     try:
         asyncio.run(start_bot())
     except (KeyboardInterrupt, SystemExit):
-        logging.info("🛑 Бот остановлен.")
+        logging.info("🛑 Bot stopped.")

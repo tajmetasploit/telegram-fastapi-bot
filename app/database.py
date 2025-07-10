@@ -31,24 +31,13 @@ def get_db():
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
-from fastapi import Depends
 from dotenv import load_dotenv
 
-# Only load .env if not in Railway environment
+# Load .env only if not running on Railway (or any other environment check)
 if os.getenv("RAILWAY_ENVIRONMENT") is None:
     load_dotenv()
 
-
-load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
-if not DATABASE_URL:
-    raise ValueError("DATABASE_URL environment variable is not set")
-
-
-# Get the DATABASE_URL from environment
-DATABASE_URL = os.getenv("DATABASE_URL")
-
-# Raise clear error if missing
 if not DATABASE_URL:
     raise ValueError("DATABASE_URL environment variable is not set")
 
@@ -58,10 +47,10 @@ engine = create_engine(DATABASE_URL, echo=False, future=True)
 # Create session factory
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Declare base class for models
+# Declare base class for ORM models
 Base = declarative_base()
 
-# Dependency to get a DB session
+# Dependency to get DB session
 def get_db():
     db = SessionLocal()
     try:
