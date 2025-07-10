@@ -383,6 +383,22 @@ def delete_message(message_id: int, db: Session = Depends(get_db)):
 async def startup_event():
     asyncio.create_task(start_bot())  # runs the bot in background
 
+if __name__ == "__main__":
+    import os
+    import uvicorn
+    import asyncio
+    from app.bot import start_bot
+
+    async def run():
+        asyncio.create_task(start_bot())  # Start the bot
+        port = int(os.environ.get("PORT", 5000))
+        config = uvicorn.Config("app.main:app", host="0.0.0.0", port=port)
+        server = uvicorn.Server(config)
+        await server.serve()
+
+    asyncio.run(run())
+
+
 # Optional: start Telegram bot in background (not recommended with polling)
 # Instead, use a separate `run_bot.py` for polling
 
