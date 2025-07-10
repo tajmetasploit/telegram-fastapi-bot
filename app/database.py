@@ -29,28 +29,16 @@ def get_db():
 
 """
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import sessionmaker, declarative_base, Session
 from fastapi import Depends
 from dotenv import load_dotenv
 import os
 
-# Load environment variables from .env file (for local development)
+# Load environment variables from .env file (optional, for local dev)
 load_dotenv()
 
-# Get individual DB connection params (used on Railway)
-PGUSER = os.getenv("PGUSER")
-PGPASSWORD = os.getenv("PGPASSWORD") or os.getenv("POSTGRES_PASSWORD")
-PGHOST = os.getenv("PGHOST") or os.getenv("RAILWAY_PRIVATE_DOMAIN")
-PGPORT = os.getenv("PGPORT", "5432")
-PGDATABASE = os.getenv("PGDATABASE")
-
-# Build DATABASE_URL manually if all parts exist
-if PGUSER and PGPASSWORD and PGHOST and PGDATABASE:
-    DATABASE_URL = f"postgresql://{PGUSER}:{PGPASSWORD}@{PGHOST}:{PGPORT}/{PGDATABASE}"
-else:
-    # Fallback to DATABASE_URL directly (from .env) or local
-    DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/mybotdatabase")
+# Use DATABASE_URL directly
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/mybotdatabase")
 
 # Create the database engine
 engine = create_engine(DATABASE_URL)
