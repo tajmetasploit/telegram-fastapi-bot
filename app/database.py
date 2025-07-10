@@ -38,6 +38,13 @@ from dotenv import load_dotenv
 if os.getenv("RAILWAY_ENVIRONMENT") is None:
     load_dotenv()
 
+
+load_dotenv()
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise ValueError("DATABASE_URL environment variable is not set")
+
+
 # Get the DATABASE_URL from environment
 DATABASE_URL = os.getenv("DATABASE_URL")
 
