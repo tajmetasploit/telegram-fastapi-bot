@@ -235,6 +235,83 @@ async def on_startup():
     asyncio.create_task(dp.start_polling(bot))"""
 
 
+""""# app/main.py
+from fastapi import FastAPI, Depends, HTTPException, Query
+from sqlalchemy.orm import Session
+from app.database import get_db, Base, engine
+from app.models import Message
+import asyncio
+import os
+from fastapi import FastAPI, Depends
+
+
+
+from fastapi import FastAPI
+from app.bot import start_bot  # import the bot startup
+import asyncio
+
+app = FastAPI(title="Telegram + FastAPI Project")
+
+# Create tables on startup
+Base.metadata.create_all(bind=engine)
+
+# Root endpoint
+@app.get("/")
+async def root():
+    return {"message": "👋 Hello! FastAPI is running."}
+
+# Get all messages
+@app.get("/messages", summary="Get all messages")
+def get_messages(db: Session = Depends(get_db)):
+    messages = db.query(Message).all()
+    return [{"id": m.id, "text": m.text} for m in messages]
+
+# Get a message by ID
+@app.get("/messages/{message_id}", summary="Get message by ID")
+def get_message(message_id: int, db: Session = Depends(get_db)):
+    message = db.query(Message).filter(Message.id == message_id).first()
+    if not message:
+        raise HTTPException(status_code=404, detail="❌ Message not found.")
+    return {"id": message.id, "text": message.text}
+
+# Create a message
+@app.post("/messages", summary="Create new message")
+def create_message(content: str = Query(...), db: Session = Depends(get_db)):
+    new_message = Message(text=content)
+    db.add(new_message)
+    db.commit()
+    db.refresh(new_message)
+    return {"id": new_message.id, "text": new_message.text}
+
+# Update a message
+@app.put("/messages/{message_id}", summary="Update a message")
+def update_message(message_id: int, new_content: str = Query(...), db: Session = Depends(get_db)):
+    message = db.query(Message).filter(Message.id == message_id).first()
+    if not message:
+        raise HTTPException(status_code=404, detail="❌ Message not found.")
+    message.text = new_content
+    db.commit()
+    db.refresh(message)
+    return {"id": message.id, "text": message.text}
+
+# Delete a message
+@app.delete("/messages/{message_id}", summary="Delete a message")
+def delete_message(message_id: int, db: Session = Depends(get_db)):
+    message = db.query(Message).filter(Message.id == message_id).first()
+    if not message:
+        raise HTTPException(status_code=404, detail="❌ Message not found.")
+    db.delete(message)
+    db.commit()
+    return {"detail": f"✅ Message with ID {message_id} deleted."}
+
+@app.on_event("startup")
+async def startup_event():
+    asyncio.create_task(start_bot())  # runs the bot in background
+
+# Optional: start Telegram bot in background (not recommended with polling)
+# Instead, use a separate `run_bot.py` for polling"""
+
+
 # app/main.py
 from fastapi import FastAPI, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
@@ -243,9 +320,6 @@ from app.models import Message
 import asyncio
 import os
 from fastapi import FastAPI, Depends
-from sqlalchemy.orm import Session
-from app.database import get_db, Base, engine
-from app.models import Message
 
 from fastapi import FastAPI
 from app.bot import start_bot  # import the bot startup
@@ -311,3 +385,10 @@ async def startup_event():
 
 # Optional: start Telegram bot in background (not recommended with polling)
 # Instead, use a separate `run_bot.py` for polling
+
+
+# ✅ Railway-compatible run block (added below)
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.environ.get("PORT", 5000))
+    uvicorn.run("app.main:app", host="0.0.0.0", port=port)
