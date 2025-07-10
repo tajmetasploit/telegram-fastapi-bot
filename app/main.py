@@ -242,6 +242,14 @@ from app.database import get_db, Base, engine
 from app.models import Message
 import asyncio
 import os
+from fastapi import FastAPI, Depends
+from sqlalchemy.orm import Session
+from app.database import get_db, Base, engine
+from app.models import Message
+
+from fastapi import FastAPI
+from app.bot import start_bot  # import the bot startup
+import asyncio
 
 app = FastAPI(title="Telegram + FastAPI Project")
 
@@ -297,10 +305,9 @@ def delete_message(message_id: int, db: Session = Depends(get_db)):
     db.commit()
     return {"detail": f"✅ Message with ID {message_id} deleted."}
 
+@app.on_event("startup")
+async def startup_event():
+    asyncio.create_task(start_bot())  # runs the bot in background
+
 # Optional: start Telegram bot in background (not recommended with polling)
 # Instead, use a separate `run_bot.py` for polling
-
-
-
-
-

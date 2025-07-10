@@ -28,9 +28,12 @@ def get_db():
         db.close()
 
 """
-import os
+"""import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
+
+from dotenv import load_dotenv
+load_dotenv()  # add this at the very top of your app entrypoint or database.py
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
@@ -40,6 +43,56 @@ engine = create_engine(DATABASE_URL, echo=False, future=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()"""
+
+
+"""from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, declarative_base
+import os
+
+# ✅ Use SQLite database for Replit
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./test.db")
+#DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://Uzer:0000@localhost:5432/mybotdatabase")
+
+# ✅ SQLite requires special connect_args
+engine = create_engine(
+    DATABASE_URL, connect_args={"check_same_thread": False}
+)
+
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+Base = declarative_base()
+
+# ✅ Dependency for DB session
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+"""
+
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, declarative_base
+import os
+
+# ✅ PostgreSQL connection URL
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://Uzer:0000@localhost:5432/mybotdatabase")
+
+# ✅ Create engine without SQLite-specific options
+engine = create_engine(DATABASE_URL)
+
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+Base = declarative_base()
+
+# ✅ Dependency for DB session
 def get_db():
     db = SessionLocal()
     try:

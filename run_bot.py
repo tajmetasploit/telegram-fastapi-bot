@@ -1,10 +1,8 @@
-# run_bot.py
 import asyncio
-from app.bot import dp, bot, register_handlers
+from app.bot import dp, bot
 
 async def main():
-    print("🤖 Starting Telegram bot...")
-    register_handlers(dp)
+    print("Bot started...")
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
