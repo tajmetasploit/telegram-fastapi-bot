@@ -383,7 +383,7 @@ if __name__ == "__main__":
     except (KeyboardInterrupt, SystemExit):
         logging.info("🛑 Bot stopped.")
 """
-
+"""
 
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.fsm.context import FSMContext
@@ -581,7 +581,7 @@ TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN") or "8058688084:AAG0LreV_E0v
 bot = Bot(token=TELEGRAM_BOT_TOKEN)
 dp = Dispatcher()
 
-# 🧠 FSM states
+# 🧠 Состояния FSM
 class Form(StatesGroup):
     inserting = State()
     updating_id = State()
@@ -592,7 +592,7 @@ class Form(StatesGroup):
     #searching_by_id = State()  
 
 
-# 🧾 Menu keyboard (добавили "List All")
+# 🧾 Клавиатура меню (добавлена кнопка "Показать все")
 menu_keyboard = ReplyKeyboardMarkup(
     keyboard=[
         [KeyboardButton(text="Старт"), KeyboardButton(text="Вставить"), KeyboardButton(text="Обновить")],
@@ -601,7 +601,7 @@ menu_keyboard = ReplyKeyboardMarkup(
     resize_keyboard=True
 )
 
-# DB session
+# Сессия БД
 def get_db():
     db = SessionLocal()
     try:
@@ -615,25 +615,26 @@ async def on_start(message: types.Message, state: FSMContext):
     await message.answer("👋 Привет! Выберите действие ниже:", reply_markup=menu_keyboard)
 
 
-# 🆕 Insert
-@dp.message(F.text.lower() == "insert")
+
+# 🆕 Вставка
+@dp.message(F.text.lower() == "вставить")
 async def start_insert(message: types.Message, state: FSMContext):
     await state.set_state(Form.inserting)
     await message.answer("✏️ Пожалуйста, введите сообщение для вставки:")
 
-# 📥 Insert message directly (skip duplicates)
+# 📥 Вставка сообщения напрямую (пропуск дубликатов)
 @dp.message(Form.inserting)
 async def process_insert(message: types.Message, state: FSMContext):
     db = next(get_db())
     if crud.search_messages(db, message.text.strip()):
-        await message.answer("⚠️ Это сообщение уже есть в базе данных.")
+        await message.answer("⚠️ Такое сообщение уже есть в базе данных.")
     else:
         new_msg = crud.create_message(db, message.text.strip())
         await message.answer(f"✅ Сообщение сохранено с ID: {new_msg.id}")
     await state.clear()
 
-# 🔄 Update
-@dp.message(F.text.lower() == "update")
+# 🔄 Обновление
+@dp.message(F.text.lower() == "обновить")
 async def start_update(message: types.Message, state: FSMContext):
     await state.set_state(Form.updating_id)
     await message.answer("✏️ Введите ID сообщения для обновления:")
@@ -659,8 +660,8 @@ async def update_get_text(message: types.Message, state: FSMContext):
         await message.answer("❌ Сообщение не найдено.")
     await state.clear()
 
-# 🗑 Delete
-@dp.message(F.text.lower() == "delete")
+# 🗑 Удаление
+@dp.message(F.text.lower() == "удалить")
 async def start_delete(message: types.Message, state: FSMContext):
     await state.set_state(Form.deleting)
     await message.answer("🗑 Пожалуйста, введите ID сообщения для удаления:")
@@ -678,8 +679,10 @@ async def process_delete(message: types.Message, state: FSMContext):
         await message.answer("❌ Сообщение не найдено.")
     await state.clear()
 
-# 🔍 Search
-@dp.message(F.text.lower() == "search")
+
+
+# 🔍 Поиск
+@dp.message(F.text.lower() == "поиск")
 async def start_search(message: types.Message, state: FSMContext):
     await state.set_state(Form.searching)
     await message.answer("🔍 Введите ключевое слово для поиска:")
@@ -695,16 +698,18 @@ async def process_search(message: types.Message, state: FSMContext):
         await message.answer(response)
     await state.clear()
 
-# 📜 List All
-@dp.message(F.text.lower() == "list all")
+
+
+# 📜 Показать все
+@dp.message(F.text.lower() == "показать все")
 async def list_all_messages(message: types.Message, state: FSMContext):
     db = next(get_db())
     all_msgs = crud.get_messages(db)
     if not all_msgs:
-        await message.answer("📭 Сообщения ещё не сохранены.")
+        await message.answer("📭 Сообщений еще нет.")
         return
 
-    MAX_LEN = 4000  # Максимальный лимит текста в Telegram ~4096
+    MAX_LEN = 4000  # Максимум символов для Telegram ~4096
     lines = [f"{m.id}: {m.text}" for m in all_msgs]
     current = ""
     for line in lines:
@@ -717,12 +722,12 @@ async def list_all_messages(message: types.Message, state: FSMContext):
 
 
 
-# ❓ Unknown messages (skip known menu & duplicates)
+# ❓ Неизвестные сообщения (пропускаем известные кнопки и дубликаты)
 @dp.message()
 async def fallback_save(message: types.Message, state: FSMContext):
     text = message.text.strip()
     lower = text.lower()
-    known_buttons = {"start", "insert", "update", "delete", "search", "list all"}
+    known_buttons = {"старт", "вставить", "обновить", "удалить", "поиск", "показать все"}
 
     if lower in known_buttons:
         await message.answer("❗ Пожалуйста, выберите действие из меню.")
@@ -730,13 +735,12 @@ async def fallback_save(message: types.Message, state: FSMContext):
 
     db = next(get_db())
     if crud.search_messages(db, text):
-        await message.answer("⚠️ Это сообщение уже есть в базе данных.")
+        await message.answer("⚠️ Такое сообщение уже есть в базе данных.")
     else:
         new_msg = crud.create_message(db, text)
         await message.answer(f"✅ Сообщение сохранено с ID: {new_msg.id}")
 
 
-# 🔄 Start bot
+# 🔄 Запуск бота
 async def start_bot():
     await dp.start_polling(bot)
-"""

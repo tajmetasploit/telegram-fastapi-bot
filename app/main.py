@@ -311,7 +311,7 @@ async def startup_event():
 # Optional: start Telegram bot in background (not recommended with polling)
 # Instead, use a separate `run_bot.py` for polling"""
 
-
+"""
 # app/main.py
 from fastapi import FastAPI, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
@@ -420,26 +420,26 @@ import os
 from fastapi import FastAPI, Depends
 
 from fastapi import FastAPI
-from app.bot import start_bot  # import the bot startup
+from app.bot import start_bot  # импорт запуска бота
 import asyncio
 
-app = FastAPI(title="Telegram + FastAPI Project")
+app = FastAPI(title="Проект Telegram + FastAPI")
 
-# Create tables on startup
+# Создание таблиц при старте приложения
 Base.metadata.create_all(bind=engine)
 
-# Root endpoint
+# Корневой эндпоинт
 @app.get("/")
 async def root():
     return {"message": "👋 Привет! FastAPI запущен."}
 
-# Get all messages
+# Получить все сообщения
 @app.get("/messages", summary="Получить все сообщения")
 def get_messages(db: Session = Depends(get_db)):
     messages = db.query(Message).all()
     return [{"id": m.id, "text": m.text} for m in messages]
 
-# Get a message by ID
+# Получить сообщение по ID
 @app.get("/messages/{message_id}", summary="Получить сообщение по ID")
 def get_message(message_id: int, db: Session = Depends(get_db)):
     message = db.query(Message).filter(Message.id == message_id).first()
@@ -447,7 +447,7 @@ def get_message(message_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="❌ Сообщение не найдено.")
     return {"id": message.id, "text": message.text}
 
-# Create a message
+# Создать новое сообщение
 @app.post("/messages", summary="Создать новое сообщение")
 def create_message(content: str = Query(...), db: Session = Depends(get_db)):
     new_message = Message(text=content)
@@ -456,7 +456,7 @@ def create_message(content: str = Query(...), db: Session = Depends(get_db)):
     db.refresh(new_message)
     return {"id": new_message.id, "text": new_message.text}
 
-# Update a message
+# Обновить сообщение
 @app.put("/messages/{message_id}", summary="Обновить сообщение")
 def update_message(message_id: int, new_content: str = Query(...), db: Session = Depends(get_db)):
     message = db.query(Message).filter(Message.id == message_id).first()
@@ -467,7 +467,7 @@ def update_message(message_id: int, new_content: str = Query(...), db: Session =
     db.refresh(message)
     return {"id": message.id, "text": message.text}
 
-# Delete a message
+# Удалить сообщение
 @app.delete("/messages/{message_id}", summary="Удалить сообщение")
 def delete_message(message_id: int, db: Session = Depends(get_db)):
     message = db.query(Message).filter(Message.id == message_id).first()
@@ -488,7 +488,7 @@ if __name__ == "__main__":
     from app.bot import start_bot
 
     async def run():
-        asyncio.create_task(start_bot())  # Запуск бота
+        asyncio.create_task(start_bot())  # запуск бота
         port = int(os.environ.get("PORT", 3000))
         config = uvicorn.Config("app.main:app", host="0.0.0.0", port=port)
         server = uvicorn.Server(config)
@@ -497,13 +497,12 @@ if __name__ == "__main__":
     asyncio.run(run())
 
 
-# Optional: start Telegram bot in background (not recommended with polling)
-# Instead, use a separate `run_bot.py` for polling
+# Опционально: запуск Telegram бота в фоне (не рекомендуется с polling)
+# Лучше использовать отдельный `run_bot.py` для polling
 
 
-# ✅ Railway-compatible run block (added below)
+# ✅ Блок запуска, совместимый с Railway (добавлен ниже)
 if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 5000))
     uvicorn.run("app.main:app", host="0.0.0.0", port=port)
-"""
