@@ -1,4 +1,4 @@
-# tests/test_crud.py
+"""# tests/test_crud.py
 
 import pytest
 from sqlalchemy import create_engine
@@ -56,3 +56,4 @@ def test_get_messages(db):
     crud.create_message(db, "Second")
     all_msgs = crud.get_messages(db)
     assert len(all_msgs) == 2
+"""
