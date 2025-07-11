@@ -78,36 +78,17 @@ def get_db():
 
 """
 
-"""from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
-import os
 
-# ✅ PostgreSQL connection URL
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://Uzer:0000@localhost:5432/mybotdatabase")
 
-# ✅ Create engine without SQLite-specific options
-engine = create_engine(DATABASE_URL)
-
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-Base = declarative_base()
-
-# ✅ Dependency for DB session
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-"""
-
-import os
+"""import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
 DATABASE_URL = os.getenv(
+    
     "DATABASE_URL",
-    "postgresql://Uzer:0000@localhost:5432/mybotdatabase"  # your local fallback
+    "postgresql://Uzer:0000@localhost:5432/mybotdatabase"
+   
 )
 
 engine = create_engine(DATABASE_URL)
@@ -116,6 +97,36 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
 
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()"""
+
+import os
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, declarative_base
+
+# ✅ Use DATABASE_URL from Replit Secrets or fallback to local PostgreSQL
+DATABASE_URL = os.getenv(
+    "DATABASE_URL",
+    "postgresql://Uzer:0000@localhost:5432/mybotdatabase"
+)
+
+# ✅ Only SQLite needs connect_args
+connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
+
+# ✅ Create SQLAlchemy engine
+engine = create_engine(DATABASE_URL, connect_args=connect_args)
+
+# ✅ Create session
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+# ✅ Base model class
+Base = declarative_base()
+
+# ✅ Dependency for FastAPI to get DB session
 def get_db():
     db = SessionLocal()
     try:
