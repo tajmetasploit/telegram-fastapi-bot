@@ -1,1 +1,10 @@
-run = "uvicorn app.main:app --host=0.0.0.0 --port=8000"
+run = "uvicorn app.main:app --host 0.0.0.0 --port 3000"
+modules = ["python-3.11"]
+
+[nix]
+packages = ["cacert", "glibcLocales", "libxcrypt"]
+
+[[ports]]
+localPort = 3000
+externalPort = 80
+
