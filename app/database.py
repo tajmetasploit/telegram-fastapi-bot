@@ -104,7 +104,7 @@ def get_db():
     finally:
         db.close()"""
 
-"""import os
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
@@ -133,8 +133,8 @@ def get_db():
         yield db
     finally:
         db.close()
-"""
 
+"""
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 import os
@@ -161,3 +161,4 @@ def get_db():
         yield db
     finally:
         db.close()
+"""
