@@ -47,5 +47,15 @@ aiogram
 psycopg2-binary
 sqlalchemy
 python-dotenv
+pytest
+pytest-asyncio
+pytest
+sqlalchemy
+pytest-asyncio  # если используешь асинхронные тесты
+fastapi
+sqlalchemy
+pytest
+httpx
+pytest-asyncio
 
 
