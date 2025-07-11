@@ -595,10 +595,8 @@ class Form(StatesGroup):
 # 🧾 Клавиатура меню (добавлена кнопка "Показать все")
 menu_keyboard = ReplyKeyboardMarkup(
     keyboard=[
-        [KeyboardButton(text="Старт")],
-        [KeyboardButton(text="Вставить"), KeyboardButton(text="Обновить")],
-        [KeyboardButton(text="Удалить"), KeyboardButton(text="Поиск")],
-        [KeyboardButton(text="Показать все")]
+        [KeyboardButton(text="Старт"),KeyboardButton(text="Вставить"), KeyboardButton(text="Обновить")],
+        [KeyboardButton(text="Удалить"), KeyboardButton(text="Поиск"),KeyboardButton(text="Показать все")]
     ],
     resize_keyboard=True
 )
