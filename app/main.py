@@ -312,7 +312,7 @@ async def startup_event():
 # Instead, use a separate `run_bot.py` for polling"""
 
 
-# app/main.py
+"""# app/main.py
 from fastapi import FastAPI, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from app.database import get_db, Base, engine
@@ -391,6 +391,104 @@ if __name__ == "__main__":
 
     async def run():
         asyncio.create_task(start_bot())  # Start the bot
+        port = int(os.environ.get("PORT", 3000))
+        config = uvicorn.Config("app.main:app", host="0.0.0.0", port=port)
+        server = uvicorn.Server(config)
+        await server.serve()
+
+    asyncio.run(run())
+
+
+# Optional: start Telegram bot in background (not recommended with polling)
+# Instead, use a separate `run_bot.py` for polling
+
+
+# ✅ Railway-compatible run block (added below)
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.environ.get("PORT", 5000))
+    uvicorn.run("app.main:app", host="0.0.0.0", port=port)
+"""
+
+# app/main.py
+from fastapi import FastAPI, Depends, HTTPException, Query
+from sqlalchemy.orm import Session
+from app.database import get_db, Base, engine
+from app.models import Message
+import asyncio
+import os
+from fastapi import FastAPI, Depends
+
+from fastapi import FastAPI
+from app.bot import start_bot  # import the bot startup
+import asyncio
+
+app = FastAPI(title="Telegram + FastAPI Project")
+
+# Create tables on startup
+Base.metadata.create_all(bind=engine)
+
+# Root endpoint
+@app.get("/")
+async def root():
+    return {"message": "👋 Привет! FastAPI запущен."}
+
+# Get all messages
+@app.get("/messages", summary="Получить все сообщения")
+def get_messages(db: Session = Depends(get_db)):
+    messages = db.query(Message).all()
+    return [{"id": m.id, "text": m.text} for m in messages]
+
+# Get a message by ID
+@app.get("/messages/{message_id}", summary="Получить сообщение по ID")
+def get_message(message_id: int, db: Session = Depends(get_db)):
+    message = db.query(Message).filter(Message.id == message_id).first()
+    if not message:
+        raise HTTPException(status_code=404, detail="❌ Сообщение не найдено.")
+    return {"id": message.id, "text": message.text}
+
+# Create a message
+@app.post("/messages", summary="Создать новое сообщение")
+def create_message(content: str = Query(...), db: Session = Depends(get_db)):
+    new_message = Message(text=content)
+    db.add(new_message)
+    db.commit()
+    db.refresh(new_message)
+    return {"id": new_message.id, "text": new_message.text}
+
+# Update a message
+@app.put("/messages/{message_id}", summary="Обновить сообщение")
+def update_message(message_id: int, new_content: str = Query(...), db: Session = Depends(get_db)):
+    message = db.query(Message).filter(Message.id == message_id).first()
+    if not message:
+        raise HTTPException(status_code=404, detail="❌ Сообщение не найдено.")
+    message.text = new_content
+    db.commit()
+    db.refresh(message)
+    return {"id": message.id, "text": message.text}
+
+# Delete a message
+@app.delete("/messages/{message_id}", summary="Удалить сообщение")
+def delete_message(message_id: int, db: Session = Depends(get_db)):
+    message = db.query(Message).filter(Message.id == message_id).first()
+    if not message:
+        raise HTTPException(status_code=404, detail="❌ Сообщение не найдено.")
+    db.delete(message)
+    db.commit()
+    return {"detail": f"✅ Сообщение с ID {message_id} удалено."}
+
+@app.on_event("startup")
+async def startup_event():
+    asyncio.create_task(start_bot())  # запуск бота в фоне
+
+if __name__ == "__main__":
+    import os
+    import uvicorn
+    import asyncio
+    from app.bot import start_bot
+
+    async def run():
+        asyncio.create_task(start_bot())  # Запуск бота
         port = int(os.environ.get("PORT", 3000))
         config = uvicorn.Config("app.main:app", host="0.0.0.0", port=port)
         server = uvicorn.Server(config)
