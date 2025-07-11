@@ -391,7 +391,7 @@ if __name__ == "__main__":
 
     async def run():
         asyncio.create_task(start_bot())  # Start the bot
-        port = int(os.environ.get("PORT", 5000))
+        port = int(os.environ.get("PORT", 3000))
         config = uvicorn.Config("app.main:app", host="0.0.0.0", port=port)
         server = uvicorn.Server(config)
         await server.serve()
