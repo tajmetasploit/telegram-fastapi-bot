@@ -414,8 +414,7 @@ class Form(StatesGroup):
 # 🧾 Menu keyboard (добавили "List All")
 menu_keyboard = ReplyKeyboardMarkup(
     keyboard=[
-        [KeyboardButton(text="Start")], 
-        [KeyboardButton(text="Insert"), KeyboardButton(text="Update")],
+        [KeyboardButton(text="Start"), KeyboardButton(text="Insert"), KeyboardButton(text="Update")],
         [KeyboardButton(text="Delete"), KeyboardButton(text="Search"), KeyboardButton(text="List All")]
     ],
     resize_keyboard=True
