@@ -385,7 +385,7 @@ if __name__ == "__main__":
 """
 
 
-"""from aiogram import Bot, Dispatcher, types, F
+from aiogram import Bot, Dispatcher, types, F
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.filters import CommandStart
@@ -564,8 +564,8 @@ async def fallback_save(message: types.Message, state: FSMContext):
 # 🔄 Start bot
 async def start_bot():
     await dp.start_polling(bot)
-"""
 
+"""
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
@@ -739,3 +739,4 @@ async def fallback_save(message: types.Message, state: FSMContext):
 # 🔄 Start bot
 async def start_bot():
     await dp.start_polling(bot)
+"""

@@ -312,7 +312,7 @@ async def startup_event():
 # Instead, use a separate `run_bot.py` for polling"""
 
 
-"""# app/main.py
+# app/main.py
 from fastapi import FastAPI, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from app.database import get_db, Base, engine
@@ -408,8 +408,8 @@ if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 5000))
     uvicorn.run("app.main:app", host="0.0.0.0", port=port)
-"""
 
+"""
 # app/main.py
 from fastapi import FastAPI, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
@@ -506,3 +506,4 @@ if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 5000))
     uvicorn.run("app.main:app", host="0.0.0.0", port=port)
+"""
