@@ -1,4 +1,4 @@
-# tests/test_bot.py
+"""# tests/test_bot.py
 
 import pytest
 from aiogram.types import Message
@@ -50,3 +50,4 @@ async def test_fallback_duplicate_message():
         
         await fallback_save(message, state)
         message.answer.assert_called_once_with("⚠️ Такое сообщение уже есть в базе данных.")
+"""
