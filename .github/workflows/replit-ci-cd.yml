@@ -1,4 +1,4 @@
-name: CI - FastAPI Telegram Bot (Replit)
+name: CI/CD - FastAPI Telegram Bot (Replit)
 
 on:
   push:
@@ -46,4 +46,6 @@ jobs:
         run: |
           pytest || echo "No tests found or failed"
 
-      # No deploy step here — Replit auto-deploys or pulls from GitHub if linked
+      - name: ✅ Note for Replit CD
+        run: echo "Deployment is automatic via Replit when GitHub repo is linked."
+
