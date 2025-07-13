@@ -433,6 +433,11 @@ Base.metadata.create_all(bind=engine)
 async def root():
     return {"message": "👋 Привет! FastAPI запущен."}
 
+# Получить все сообщения
+@app.get("/messages", summary="Получить все сообщения")
+def get_messages(db: Session = Depends(get_db)):
+    messages = db.query(Message).all()
+    return [{"id": m.id, "text": m.text} for m in messages]
 
 
 # Получить сообщение по ID
